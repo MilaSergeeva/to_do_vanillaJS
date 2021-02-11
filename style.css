@@ -123,6 +123,7 @@ select {
   position: relative;
   overflow: hidden;
   height: 53px;
+  width: 200px;
 }
 
 .select::after {
@@ -133,10 +134,96 @@ select {
   right: 0;
   padding: 1rem;
   pointer-events: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease-out;
+  font-size: 0.9rem;
+}
+
+/* .select[data-state="active"] .select::after {
+  content: "\25B2";
+} */
+
+.select[data-state="active"]::after {
+  content: "\25B2";
 }
 
 .select:hover::after {
   background: #fff;
   color: #54c64e;
+}
+
+.select__label,
+.select__input {
+  max-height: 40px;
+  border-top-width: 1px;
+}
+
+.filter-todo {
+  color: #ffb74b;
+  width: 200px;
+  cursor: pointer;
+  padding-left: 1.2rem;
+  height: 100%;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.select__content {
+  color: #ffb74b;
+}
+
+.select[data-state="active"] {
+  overflow: visible;
+}
+
+.select[data-state="active"] .select__content {
+  opacity: 1;
+  width: 100%;
+}
+
+.select__content {
+  position: absolute;
+  color: #ffb74b;
+  bottom: -120px;
+  left: 0;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-top: none;
+  transition: all 0.3s ease-out;
+  opacity: 0;
+  z-index: 8;
+}
+
+.select__input {
+  display: none;
+}
+.select__input:checked + label {
+  background-color: #fff;
+}
+.select__input:disabled + label {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.select__label {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  /* max-height: 0; */
+  padding: 0 16px;
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+  overflow: hidden;
+  color: #ffb74b;
+  font-size: 14px;
+  line-height: 1;
+}
+.select__label + input + .select__label {
+  border-top: 0 solid #c7ccd160;
+}
+.select__label:hover {
+  background-color: #c7ccd1 !important;
 }

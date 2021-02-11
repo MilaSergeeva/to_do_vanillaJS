@@ -19,13 +19,25 @@
     <button class='todo__button' type='submit'>
       <i class='fas fa-plus-square'></i>
     </button>
-    <div class="select">
+    <div class="select" data-state="">
+      <div class="filter-todo" data-default="All">All</div>
+      <div class="select__content">
+        <input id="all" value='all' class="select__input" type="radio" name="singleSelect" checked />
+        <label for="all" class="select__label">All</label>
+        <input id="completed" value='completed' class="select__input" type="radio" name="singleSelect" />
+        <label for="completed" class="select__label">Completed</label>
+        <input id="uncompleted" value='uncompleted' class="select__input" type="radio" name="singleSelect" />
+        <label for="uncompleted" class="select__label">Uncompleted</label>
+      </div>
+    </div>
+
+    <!-- <div class="select">
       <select name='todos' class='filter-todo'>
         <option class='filter-item' value='all'>All</option>
         <option class='filter-item' value='completed'>Completed</option>
         <option class='filter-item' value='uncompleted'>Uncompleted</option>
       </select>
-    </div>
+    </div> -->
   </form>
   <div class="todo-container">
     <ul class="todo-list"></ul>
