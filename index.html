@@ -19,10 +19,16 @@
     <button class='todo__button' type='submit'>
       <i class='fas fa-plus-square'></i>
     </button>
+    <div class="select">
+      <select name='todos' class='filter-todo'>
+        <option class='filter-item' value='all'>All</option>
+        <option class='filter-item' value='completed'>Completed</option>
+        <option class='filter-item' value='uncompleted'>Uncompleted</option>
+      </select>
+    </div>
   </form>
   <div class="todo-container">
-    <ul class="todo-list">
-    </ul>
+    <ul class="todo-list"></ul>
   </div>
   <script src="./app.js"></script>
 </body>

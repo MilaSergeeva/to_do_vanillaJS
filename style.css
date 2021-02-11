@@ -53,7 +53,7 @@ body {
 .todo-list {
   min-width: 30%;
   list-style: none;
-  width: 100vw;
+  width: 500px;
 }
 
 .todo-list__item-container {
@@ -64,6 +64,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all 0.5s ease;
 }
 
 .todo-list__item {
@@ -87,4 +88,55 @@ body {
 
 .todo-list__item {
   padding: 0rem 0.5rem;
+}
+
+.fa-trash,
+.fa-check {
+  pointer-events: none;
+}
+
+.completed {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.fall {
+  transform: translateY(8rem) rotateZ(20deg);
+  opacity: 0;
+}
+
+select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  outline: none;
+  border: none;
+  color: #ffb74b;
+  width: 10rem;
+  cursor: pointer;
+  padding-left: 1.2rem;
+  height: 100%;
+}
+
+.select {
+  margin-left: 1rem;
+  position: relative;
+  overflow: hidden;
+  height: 53px;
+}
+
+.select::after {
+  content: "\25BC";
+  position: absolute;
+  background: #ffb74b;
+  top: 0;
+  right: 0;
+  padding: 1rem;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.select:hover::after {
+  background: #fff;
+  color: #54c64e;
 }
