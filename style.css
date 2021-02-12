@@ -23,13 +23,26 @@ body {
   align-items: center;
 }
 
-.todo__input,
-.todo__button {
-  padding: 0.5rem;
-  font-size: 2rem;
+.todo__input {
+  padding: 0.8rem 1rem;
+  font-size: 1.6rem;
   border: none;
   background: #fff;
   outline: none;
+  color: #848688;
+}
+
+.todo__button {
+  padding: 0.8rem;
+  font-size: 1.6rem;
+  border: none;
+  background: #fff;
+  outline: none;
+}
+
+.todo__input::placeholder {
+  font-size: 18px;
+  color: #c7ccd180;
 }
 
 .todo__button {
@@ -59,12 +72,13 @@ body {
 .todo-list__item-container {
   margin: 0.5rem;
   background: #fff;
-  color: #000;
+  color: #848688;
   font-size: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.5s ease;
+  position: relative;
 }
 
 .todo-list__item {
@@ -85,14 +99,52 @@ body {
 .todo-list__trash-buttons {
   background: #ffb74b;
 }
+/* .todo-list__edit-buttons {
+  background: #ffb74b;
+} */
 
 .todo-list__item {
   padding: 0rem 0.5rem;
+  display: block;
+  z-index: 10;
 }
 
 .fa-trash,
 .fa-check {
   pointer-events: none;
+}
+
+.todo-list__edit-clone-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.543);
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  display: none;
+}
+
+.todo-list__item:hover + .todo-list__edit-clone-container {
+  display: flex;
+}
+
+.todo-list__item:hover + .todo-list__trash-buttons {
+  background: red;
+}
+
+.todo-list__edit-button,
+.todo-list__clone-button {
+  background: none;
+  color: #fff;
+  /* border: 1px solid #fff; */
+  border: none;
+  margin: 1rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  outline: none;
 }
 
 .completed {
@@ -103,19 +155,6 @@ body {
 .fall {
   transform: translateY(8rem) rotateZ(20deg);
   opacity: 0;
-}
-
-select {
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  appearance: none !important;
-  outline: none;
-  border: none;
-  color: #ffb74b;
-  width: 10rem;
-  cursor: pointer;
-  padding-left: 1.2rem;
-  height: 100%;
 }
 
 .select {
@@ -221,9 +260,7 @@ select {
   font-size: 14px;
   line-height: 1;
 }
-.select__label + input + .select__label {
-  border-top: 0 solid #c7ccd160;
-}
+
 .select__label:hover {
-  background-color: #c7ccd1 !important;
+  background-color: #c7ccd180 !important;
 }
