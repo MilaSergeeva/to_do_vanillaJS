@@ -9,13 +9,25 @@ const selectSingle = document.querySelector(".select");
 const selectSingleContainer = selectSingle.querySelector(".filter-todo");
 const selectSingleLabels = selectSingle.querySelectorAll(".select__label");
 
-let editTodo = "";
+const popupTodo = document.querySelector(".popup");
+const popupTodoContainer = document.querySelector(".popup__container");
+const popupTodoText = document.querySelector(".popup__todo");
+const popupTodoCloseButton = document.querySelector(".popup__close");
+const popupTodoSaveButton = document.querySelector(".popup__save");
+
+let editTodoText = "";
 let inputValue = "";
+let todoValue = {};
 
 //Event Listeners
 document.addEventListener("DOMContentLoaded", getTodoesFromLocalStorage);
 todoButton.addEventListener("click", addTodo);
-todoList.addEventListener("click", deleteAndCheck);
+
+popupTodoCloseButton.addEventListener("click", () => {
+  closePopup();
+});
+
+popupTodo.addEventListener("click", handleOverlayClose);
 
 for (let filterItem of filterItems) {
   filterItem.addEventListener("click", filterTodo);
@@ -23,7 +35,6 @@ for (let filterItem of filterItems) {
 
 todoInput.addEventListener("input", function () {
   inputValue = todoInput.value;
-  console.log(inputValue);
   if (inputValue !== "") {
     todoButton.disabled = false;
   } else {
@@ -33,118 +44,152 @@ todoInput.addEventListener("input", function () {
 
 //Functions
 
-function addTodo(event) {
-  event.preventDefault();
+function layoutTodoItem(text, id, completed) {
+  console.log(id);
 
-  // //todo DIV
-  // const todoDiv = document.createElement("div");
-  // todoDiv.classList.add("todo-list__item-container");
-
-  // //li
-  // const newTodo = document.createElement("li");
-  // newTodo.innerText = todoInput.value;
-  // newTodo.classList.add("todo-list__item");
-
-  // todoDiv.appendChild(newTodo);
+  // list el <li>
+  const newTodo = document.createElement("li");
+  completed === true
+    ? newTodo.classList.add("todo-list__item-container", "completed")
+    : newTodo.classList.add("todo-list__item-container");
+  newTodo.setAttribute("data-id", id);
 
   //todo DIV
-  const todoDiv = document.createElement("li");
-  todoDiv.classList.add("todo-list__item-container");
+  const todoDiv = document.createElement("div");
+  todoDiv.classList.add("todo-list__text");
+  newTodo.appendChild(todoDiv);
 
-  //li
-  const newTodo = document.createElement("li");
-  newTodo.innerText = todoInput.value;
-  newTodo.classList.add("todo-list__item");
-
-  todoDiv.appendChild(newTodo);
-
-  //add todo list to lockal storage
-  saveTodosToLocalStorage({
-    title: todoInput.value,
-    completed: false,
-  });
+  //p
+  const todoItem = document.createElement("p");
+  todoItem.innerText = text;
+  todoItem.classList.add("todo-list__item");
+  todoDiv.appendChild(todoItem);
 
   //check mark button
   const completedButton = document.createElement("button");
   completedButton.innerHTML = '<i class="fas fa-check"></i>';
   completedButton.classList.add("todo-list__completed-buttons");
-  todoDiv.appendChild(completedButton);
+  newTodo.appendChild(completedButton);
+  completedButton.addEventListener("click", checkTodo);
 
   //trash button
   const trashButton = document.createElement("button");
   trashButton.innerHTML = '<i class="fas fa-trash"></i>';
   trashButton.classList.add("todo-list__trash-buttons");
-  todoDiv.appendChild(trashButton);
+  newTodo.appendChild(trashButton);
+  trashButton.addEventListener("click", deleteTodo);
 
   // edit copy block
   const editOrCopy = document.createElement("div");
   editOrCopy.classList.add("todo-list__edit-clone-container");
   todoDiv.appendChild(editOrCopy);
 
-  // buttons to edit copy block
-
   //edit button
   const editButton = document.createElement("button");
   editButton.innerHTML = '<i class="fas fa-edit"></i>';
   editButton.classList.add("todo-list__edit-button");
   editOrCopy.appendChild(editButton);
+  editButton.addEventListener("click", editTodo);
 
   //copy button
   const copyButton = document.createElement("button");
   copyButton.innerHTML = '<i class="fas fa-clone"></i>';
   copyButton.classList.add("todo-list__clone-button");
   editOrCopy.appendChild(copyButton);
+  // copyButton.addEventListener("click", editTodo);
+
+  //view button
+  const viewButton = document.createElement("button");
+  viewButton.innerHTML = '<i class="far fa-eye"></i>';
+  viewButton.classList.add("todo-list__clone-button");
+  editOrCopy.appendChild(viewButton);
+  viewButton.addEventListener("click", seeTodo);
 
   //append to list
-  todoList.appendChild(todoDiv);
+  todoList.appendChild(newTodo);
+
+  todoValue = { todoInput: todoInput.value, id };
+}
+
+function addTodo(event) {
+  event.preventDefault();
+
+  const id = new Date().toISOString();
+
+  layoutTodoItem(inputValue.value, id, false);
+
+  //add todo list to lockal storage
+  saveTodosToLocalStorage({
+    title: todoValue.todoInput,
+    completed: false,
+    id: todoValue.id,
+  });
 
   //clear todo input value
   todoInput.value = "";
   todoButton.disabled = true;
 }
 
-// console.log("todoInput", todoInput);
-// console.log("todoInput.value", todoInput.value);
-// console.log("typeof todoInput.value", typeof todoInput.value);
-
-// function addNewTodo() {
-//   if (inputValue !== "") {
-//     todoButton.disabled = false;
-//     addTodo();
-//   } else {
-//     todoButton.disabled = true;
-//   }
-// }
-console.log("todoInput.value", todoInput.value);
-function deleteAndCheck(e) {
+function deleteTodo(e) {
   e.preventDefault();
 
   const item = e.target;
 
   //delete todo
-  if (item.classList[0] === "todo-list__trash-buttons") {
-    const todo = item.parentElement;
-    //animation
-    todo.classList.add("fall");
-    removeTodosFromLocalStorage(todo);
-    todo.addEventListener("transitionend", function () {
-      todo.remove();
-    });
-  }
 
+  const todo = item.parentElement;
+  //animation
+  todo.classList.add("fall");
+  removeTodosFromLocalStorage(todo);
+  todo.addEventListener("transitionend", function () {
+    todo.remove();
+  });
+}
+
+function checkTodo(e) {
+  e.preventDefault();
+
+  const item = e.target;
   //check mark
-  if (item.classList[0] === "todo-list__completed-buttons") {
-    const todo = item.parentElement;
-    todo.classList.toggle("completed");
-    updateTodosLocalStorage(todo);
-  }
 
-  //edit todo
-  if (item.classList[0] === "todo-list__edit-buttons") {
-    const todo = item.parentElement;
-    todo.classList.toggle("completed");
-    updateTodosLocalStorage(todo);
+  const todo = item.parentElement;
+  todo.classList.toggle("completed");
+  updateTodosLocalStorage(todo);
+}
+
+function seeTodo(e) {
+  e.preventDefault();
+
+  const item = e.target;
+  //see todo
+  if (item.classList.contains("fa-edit")) {
+    console.log("урааааа");
   }
+}
+
+function editTodo(e) {
+  e.preventDefault();
+
+  const item = e.target;
+
+  const itemParent = item.closest(".todo-list__item-container");
+  // const itemParentText = item.closest(".todo-list__text");
+
+  editTodoText = itemParent.querySelector(".todo-list__item");
+  // popupTodoText.value = editTodoText.innerText;
+  popupTodoText.textContent = editTodoText.innerText;
+
+  popupTodoText.removeAttribute("readonly");
+
+  console.log("el", popupTodoText.textContent, popupTodoText.value);
+  openPopup();
+
+  popupTodoSaveButton.addEventListener("click", () => {
+    editTodoText.textContent = popupTodoText.value;
+
+    closePopup();
+    updateTodosLocalStorage(itemParent);
+  });
 }
 
 function filterTodo(e) {
@@ -198,15 +243,19 @@ function updateTodosLocalStorage(todo) {
     todos = JSON.parse(localStorage.getItem("todos"));
   }
 
-  const todoIndex = todo.children[0].innerText;
-  const deletedObj = { title: todoIndex, completed: false };
-  const indexOfTodo = todos.findIndex((i) => i.title === deletedObj.title);
+  const todoText = todo.children[0].innerText;
+  const todoId = todo.getAttribute("data-id");
+  const todoObj = { title: todoText, completed: false, id: todoId };
+  console.log(todoId, todoText, todo);
+  const indexOfTodo = todos.findIndex((i) => i.id === todoObj.id);
+
   if (todo.classList.contains("completed")) {
     todos[indexOfTodo].completed = true;
+    todos[indexOfTodo].title = todoText;
     localStorage.setItem("todos", JSON.stringify(todos));
   } else {
     todos[indexOfTodo].completed = false;
-
+    todos[indexOfTodo].title = todoText;
     localStorage.setItem("todos", JSON.stringify(todos));
   }
 }
@@ -220,41 +269,7 @@ function getTodoesFromLocalStorage() {
     todos = JSON.parse(localStorage.getItem("todos"));
   }
   todos.forEach(function (todo) {
-    //todo DIV
-    const todoDiv = document.createElement("div");
-    if (todo.completed === true) {
-      todoDiv.classList.add("todo-list__item-container", "completed");
-    } else {
-      todoDiv.classList.add("todo-list__item-container");
-    }
-
-    //li
-    const newTodo = document.createElement("li");
-    newTodo.innerText = todo.title;
-    newTodo.classList.add("todo-list__item");
-
-    todoDiv.appendChild(newTodo);
-
-    //check mark button
-    const completedButton = document.createElement("button");
-    completedButton.innerHTML = '<i class="fas fa-check"></i>';
-    completedButton.classList.add("todo-list__completed-buttons");
-    todoDiv.appendChild(completedButton);
-
-    //edit button
-    const editButton = document.createElement("button");
-    editButton.innerHTML = '<i class="fas fa-edit"></i>';
-    editButton.classList.add("todo-list__edit-buttons");
-    todoDiv.appendChild(editButton);
-
-    //trash button
-    const trashButton = document.createElement("button");
-    trashButton.innerHTML = '<i class="fas fa-trash"></i>';
-    trashButton.classList.add("todo-list__trash-buttons");
-    todoDiv.appendChild(trashButton);
-
-    //append to list
-    todoList.appendChild(todoDiv);
+    layoutTodoItem(todo.title, todo.id, todo.completed);
   });
 }
 
@@ -287,17 +302,43 @@ selectSingleContainer.addEventListener("click", () => {
 });
 
 // Close when click to option
-for (let i = 0; i < selectSingleLabels.length; i++) {
-  selectSingleLabels[i].addEventListener("click", (evt) => {
-    selectSingleContainer.textContent = evt.target.textContent;
-    selectSingle.setAttribute("data-state", "");
-  });
-}
-
-// Close when click to option
 for (let selectSingleLabel of selectSingleLabels) {
   selectSingleLabel.addEventListener("click", (evt) => {
     selectSingleContainer.textContent = evt.target.textContent;
     selectSingle.setAttribute("data-state", "");
   });
+}
+
+//close open popup
+function handleEscClose(event) {
+  const ESC_KEYCODE = 27;
+  console.log("esc");
+  if (event.keyCode === ESC_KEYCODE) {
+    console.log("esc1");
+    const popupOpened = popupTodo.querySelector(".popup_opened");
+
+    if (popupOpened) {
+      closePopup(popupOpened);
+    }
+  }
+}
+
+function handleOverlayClose(event) {
+  if (popupTodo === event.target && popupTodo.classList.contains("popup")) {
+    console.log("haha");
+    closePopup();
+  }
+}
+
+function openPopup() {
+  popupTodo.classList.add("popup_opened");
+
+  popupTodo.addEventListener("keydown", handleEscClose);
+}
+
+function closePopup() {
+  console.log("close");
+  popupTodo.classList.remove("popup_opened");
+
+  popupTodo.removeEventListener("keydown", handleEscClose);
 }
