@@ -364,6 +364,7 @@ body {
   position: absolute;
   bottom: 2rem;
   right: 2rem;
+  cursor: pointer;
 }
 
 .none-display {
