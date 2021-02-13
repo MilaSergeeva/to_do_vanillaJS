@@ -17,7 +17,7 @@ const popupTodoSaveButton = document.querySelector(".popup__save");
 
 let editTodoText = "";
 let inputValue = "";
-let todoValue = {};
+let todoValue = "";
 
 //Event Listeners
 document.addEventListener("DOMContentLoaded", getTodoesFromLocalStorage);
@@ -106,23 +106,25 @@ function layoutTodoItem(text, id, completed) {
   viewButton.addEventListener("click", seeTodo);
 
   //append to list
-  todoList.appendChild(newTodo);
+  todoList.prepend(newTodo);
+  // todoList.appendChild(newTodo);
 
-  todoValue = { todoInput: todoInput.value, id };
+  // todoValue = { todoInput: todoInput.value };
 }
 
 function addTodo(event) {
   event.preventDefault();
 
+  todoValue = todoInput.value;
   const id = new Date().toISOString();
 
-  layoutTodoItem(inputValue.value, id, false);
+  layoutTodoItem(todoValue, id, false);
 
   //add todo list to lockal storage
   saveTodosToLocalStorage({
-    title: todoValue.todoInput,
+    title: todoValue,
     completed: false,
-    id: todoValue.id,
+    id: id,
   });
 
   //clear todo input value
@@ -161,10 +163,15 @@ function seeTodo(e) {
   e.preventDefault();
 
   const item = e.target;
-  //see todo
-  if (item.classList.contains("fa-edit")) {
-    console.log("урааааа");
-  }
+
+  const itemParent = item.closest(".todo-list__item-container");
+  editTodoText = itemParent.querySelector(".todo-list__item");
+
+  popupTodoText.textContent = editTodoText.innerText;
+
+  popupTodoSaveButton.classList.add("none-display");
+
+  openPopup();
 }
 
 function editTodo(e) {
@@ -173,21 +180,16 @@ function editTodo(e) {
   const item = e.target;
 
   const itemParent = item.closest(".todo-list__item-container");
-  // const itemParentText = item.closest(".todo-list__text");
-
   editTodoText = itemParent.querySelector(".todo-list__item");
-  // popupTodoText.value = editTodoText.innerText;
+
   popupTodoText.textContent = editTodoText.innerText;
 
   popupTodoText.removeAttribute("readonly");
 
-  console.log("el", popupTodoText.textContent, popupTodoText.value);
   openPopup();
 
   popupTodoSaveButton.addEventListener("click", () => {
     editTodoText.textContent = popupTodoText.value;
-
-    closePopup();
     updateTodosLocalStorage(itemParent);
   });
 }
@@ -334,11 +336,13 @@ function openPopup() {
   popupTodo.classList.add("popup_opened");
 
   popupTodo.addEventListener("keydown", handleEscClose);
+
+  popupTodoSaveButton.addEventListener("click", closePopup);
 }
 
 function closePopup() {
-  console.log("close");
   popupTodo.classList.remove("popup_opened");
 
   popupTodo.removeEventListener("keydown", handleEscClose);
+  popupTodoSaveButton.removeEventListener("click", closePopup);
 }

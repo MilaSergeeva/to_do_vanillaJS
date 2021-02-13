@@ -365,3 +365,7 @@ body {
   bottom: 2rem;
   right: 2rem;
 }
+
+.none-display {
+  display: none;
+}
