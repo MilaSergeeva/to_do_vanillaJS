@@ -18,11 +18,15 @@ const popupTodoSaveButton = document.querySelector(".popup__save");
 let todoTextContent = "";
 let inputValue = "";
 let todoValue = "";
+let draggable = "";
 
+document.addEventListener("click", (e) => {
+  console.log(e.target);
+});
 //Event Listeners
 document.addEventListener("DOMContentLoaded", getTodoesFromLocalStorage);
 todoButton.addEventListener("click", addTodo);
-// todoList.addEventListener("DOMNodeInserted", sortTodoList);
+todoList.addEventListener("dragover", dragoverTodo);
 
 popupTodoCloseButton.addEventListener("click", () => {
   closePopup();
@@ -45,13 +49,43 @@ todoInput.addEventListener("input", function () {
 
 //Functions
 
+function dragoverTodo(e) {
+  e.preventDefault();
+  const afterElement = getDragAfterElement(todoList, e.clientY);
+  draggable = document.querySelector(".dragging");
+  if (afterElement == null) {
+    console.log("проверка", draggable);
+    todoList.appendChild(draggable);
+  } else {
+    console.log("2", draggable);
+    todoList.insertBefore(draggable, afterElement);
+  }
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [
+    ...container.querySelectorAll(".todo-list__item-container:not(.dragging)"),
+  ];
+
+  return draggableElements.reduce(
+    (closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    },
+    { offset: Number.NEGATIVE_INFINITY }
+  ).element;
+}
+
 function sortTodoList() {
   console.log("mau");
   const todoItemsArray = Array.from(
     todoList.querySelectorAll(".todo-list__item-container")
   );
-
-  console.log(todoItemsArray);
 
   todoItemsArray.sort(function (a, b) {
     if (a.classList.contains("completed")) {
@@ -63,8 +97,6 @@ function sortTodoList() {
     }
   });
 
-  console.log(todoItemsArray);
-
   todoItemsArray.forEach((el) => todoList.prepend(el));
 }
 
@@ -73,11 +105,25 @@ function layoutTodoItem(text, id, completed, addTo) {
 
   // list el <li>
   const newTodo = document.createElement("li");
+  newTodo.setAttribute("draggable", "true");
   completed === true
     ? newTodo.classList.add("todo-list__item-container", "completed")
     : newTodo.classList.add("todo-list__item-container");
   newTodo.setAttribute("data-id", id);
-  newTodo.addEventListener("dragstart", checkTodo);
+
+  newTodo.addEventListener("dragstart", () => {
+    newTodo.classList.add(".dragging");
+    console.log("1");
+  });
+
+  newTodo.addEventListener("dragend", () => {
+    newTodo.classList.remove(".dragging");
+  });
+
+  // const moveItemIcon = document.createElement("button");
+  // moveItemIcon.innerHTML = '<i class="fas fa-arrows-alt"></i>';
+  // moveItemIcon.classList.add("todo-list__move-buttons");
+  // newTodo.appendChild(moveItemIcon);
 
   //todo DIV
   const todoDiv = document.createElement("div");
@@ -89,6 +135,16 @@ function layoutTodoItem(text, id, completed, addTo) {
   todoItem.innerText = text;
   todoItem.classList.add("todo-list__item");
   todoDiv.appendChild(todoItem);
+
+  // todoItem.addEventListener("dragstart", () => {
+  //   todoItem.classList.add(".dragging");
+  //   console.log("bla");
+  // });
+
+  // todoItem.addEventListener("dragend", () => {
+  //   todoItem.classList.remove(".dragging");
+  //   console.log("boom");
+  // });
 
   //check mark button
   const completedButton = document.createElement("button");
@@ -108,6 +164,10 @@ function layoutTodoItem(text, id, completed, addTo) {
   const editOrCopy = document.createElement("div");
   editOrCopy.classList.add("todo-list__edit-clone-container");
   todoDiv.appendChild(editOrCopy);
+
+  const moveItemIcon = document.createElement("i");
+  moveItemIcon.classList.add("fas", "fa-arrows-alt");
+  newTodo.appendChild(moveItemIcon);
 
   //edit button
   const editButton = document.createElement("button");
@@ -219,8 +279,6 @@ function seeTodo(e) {
     : popupTodoSaveButton.classList.add("none-display");
 
   openPopup();
-
-  // toggleClass(popupTodoSaveButton, "none-display");
 }
 
 function editTodo(e) {

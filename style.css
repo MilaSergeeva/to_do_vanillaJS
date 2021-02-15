@@ -87,6 +87,8 @@ body {
   position: relative;
   max-height: 50px;
   object-fit: contain;
+  /* padding-right: 0.5rem; */
+  /* cursor: move; */
 }
 
 .todo-list__item {
@@ -97,7 +99,7 @@ body {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  max-width: 388px;
+  max-width: 345px;
   margin: 0;
   object-fit: contain;
 }
@@ -369,4 +371,24 @@ body {
 
 .none-display {
   display: none;
+}
+
+.dragging {
+  opacity: 0.3;
+}
+
+.dragging .todo-list__edit-clone-container {
+  opacity: 0.3;
+}
+
+.fa-arrows-alt {
+  /* width: 2rem;
+  height: 2rem; */
+  padding: 0 0.8rem;
+  color: #54c64e;
+  display: flex;
+  align-self: center;
+  text-align: center;
+  pointer-events: none;
+  cursor: move;
 }
