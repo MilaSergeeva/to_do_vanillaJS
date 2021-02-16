@@ -13,8 +13,8 @@ const selectSingleLabels = selectSingle.querySelectorAll(".select__label");
 const popupTodo = document.querySelector(".popup");
 const popupTodoContainer = document.querySelector(".popup__container");
 const popupTodoText = document.querySelector(".popup__todo");
-const popupTodoCloseButton = document.querySelector(".popup__close");
-const popupTodoSaveButton = document.querySelector(".popup__save");
+const popupTodoCloseButton = document.querySelector(".popup__closeBtn");
+const popupTodoSaveButton = document.querySelector(".popup__saveBtn");
 
 let todoTextContent = "";
 let inputValue = "";
@@ -476,11 +476,12 @@ for (let selectSingleLabel of selectSingleLabels) {
 //close open popup
 function handleEscClose(event) {
   const ESC_KEYCODE = 27;
+  console.log(event.keyCode);
   if (event.keyCode === ESC_KEYCODE) {
-    const popupOpened = popupTodo.querySelector(".popup_opened");
+    // const popupOpened = popupTodo.querySelector(".popup_opened");
 
-    if (popupOpened) {
-      closePopup(popupOpened);
+    if (popupTodo.classList.contains("popup_opened")) {
+      closePopup();
     }
   }
 }
@@ -494,7 +495,7 @@ function handleOverlayClose(event) {
 function openPopup() {
   popupTodo.classList.add("popup_opened");
 
-  popupTodo.addEventListener("keydown", handleEscClose);
+  document.addEventListener("keydown", handleEscClose);
 
   popupTodoSaveButton.addEventListener("click", closePopup);
 }
@@ -502,7 +503,7 @@ function openPopup() {
 function closePopup() {
   popupTodo.classList.remove("popup_opened");
 
-  popupTodo.removeEventListener("keydown", handleEscClose);
+  document.removeEventListener("keydown", handleEscClose);
   popupTodoSaveButton.removeEventListener("click", closePopup);
 }
 
@@ -585,11 +586,9 @@ function checkPageTheme() {
       .classList.add("select-content-black");
     document.querySelector(".footer").classList.add("footer-black");
     document.querySelector(".popup__container").classList.add("popup-black");
-    document
-      .querySelector(".popup__close")
-      .classList.add("popup-closeBtn-black");
     document.querySelector(".popup__todo").classList.add("popup-black");
-    document.querySelector(".popup__save").classList.add("popup-saveBtn-black");
+    popupTodoCloseButton.classList.add("popup-closeBtn-black");
+    popupTodoSaveButton.classList.add("popup-saveBtn-black");
   } else {
     document.querySelector(".body").classList.remove("body-black");
     document.querySelector(".todo-header").classList.remove("h1-black");
@@ -604,12 +603,8 @@ function checkPageTheme() {
       .classList.remove("select-content-black");
     document.querySelector(".footer").classList.remove("footer-black");
     document.querySelector(".popup__container").classList.remove("popup-black");
-    document
-      .querySelector(".popup__close")
-      .classList.remove("popup-closeBtn-black");
     document.querySelector(".popup__todo").classList.remove("popup-black");
-    document
-      .querySelector(".popup__save")
-      .classList.remove("popup-saveBtn-black");
+    popupTodoCloseButton.classList.remove("popup-closeBtn-black");
+    popupTodoSaveButton.classList.remove("popup-saveBtn-black");
   }
 }
