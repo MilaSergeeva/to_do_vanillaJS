@@ -291,7 +291,7 @@ html {
 .footer {
   display: flex;
   justify-content: space-between;
-  padding: 20px 30px;
+  padding: 60px 80px 20px;
   align-items: center;
   transition: all 0.3s ease;
   color: #fff;
@@ -532,11 +532,19 @@ html {
   .popup__todo {
     font-size: 1.5rem;
   }
+
+  .footer {
+    padding: 40px 60px 20px;
+  }
 }
 
 @media screen and (max-width: 800px) {
   .popup__todo {
     font-size: 1rem;
+  }
+
+  .footer {
+    padding: 20px;
   }
 }
 
