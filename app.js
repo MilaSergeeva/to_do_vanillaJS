@@ -4,6 +4,7 @@ const todoButton = document.querySelector(".todo__button");
 const todoList = document.querySelector(".todo-list");
 const filterOption = document.querySelector(".filter-todo");
 const filterItems = document.querySelectorAll(".select__input");
+const themeChangeBtn = document.querySelector(".themeBtn");
 
 const selectSingle = document.querySelector(".select");
 const selectSingleContainer = selectSingle.querySelector(".filter-todo");
@@ -18,15 +19,13 @@ const popupTodoSaveButton = document.querySelector(".popup__save");
 let todoTextContent = "";
 let inputValue = "";
 let todoValue = "";
-let draggable = "";
 
-document.addEventListener("click", (e) => {
-  console.log(e.target);
-});
 //Event Listeners
 document.addEventListener("DOMContentLoaded", getTodoesFromLocalStorage);
+document.addEventListener("DOMContentLoaded", checkPageTheme);
 todoButton.addEventListener("click", addTodo);
-todoList.addEventListener("dragover", dragoverTodo);
+todoList.addEventListener("dragover", debounceDragoverTodo);
+themeChangeBtn.addEventListener("click", changeTheme);
 
 popupTodoCloseButton.addEventListener("click", () => {
   closePopup();
@@ -49,17 +48,43 @@ todoInput.addEventListener("input", function () {
 
 //Functions
 
+function debounce(func, wait, immediate) {
+  let timeout;
+
+  return function executedFunction() {
+    const context = this;
+    const args = arguments;
+
+    const later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+
+    const callNow = immediate && !timeout;
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(later, wait);
+
+    if (callNow) func.apply(context, args);
+  };
+}
+
 function dragoverTodo(e) {
   e.preventDefault();
   const afterElement = getDragAfterElement(todoList, e.clientY);
-  draggable = document.querySelector(".dragging");
+
+  const draggable = document.querySelector(".dragging");
+
   if (afterElement == null) {
-    console.log("проверка", draggable);
     todoList.appendChild(draggable);
   } else {
-    console.log("2", draggable);
     todoList.insertBefore(draggable, afterElement);
   }
+}
+
+function debounceDragoverTodo(e) {
+  debounce(dragoverTodo(e), 1000);
 }
 
 function getDragAfterElement(container, y) {
@@ -67,7 +92,7 @@ function getDragAfterElement(container, y) {
     ...container.querySelectorAll(".todo-list__item-container:not(.dragging)"),
   ];
 
-  return draggableElements.reduce(
+  const positioning = draggableElements.reduce(
     (closest, child) => {
       const box = child.getBoundingClientRect();
       const offset = y - box.top - box.height / 2;
@@ -79,19 +104,20 @@ function getDragAfterElement(container, y) {
     },
     { offset: Number.NEGATIVE_INFINITY }
   ).element;
+
+  return positioning;
 }
 
 function sortTodoList() {
-  console.log("mau");
   const todoItemsArray = Array.from(
     todoList.querySelectorAll(".todo-list__item-container")
   );
 
   todoItemsArray.sort(function (a, b) {
     if (a.classList.contains("completed")) {
-      return 1;
-    } else if (b.classList.contains("completed")) {
       return -1;
+    } else if (b.classList.contains("completed")) {
+      return 1;
     } else {
       return 0;
     }
@@ -101,8 +127,6 @@ function sortTodoList() {
 }
 
 function layoutTodoItem(text, id, completed, addTo) {
-  console.log(id);
-
   // list el <li>
   const newTodo = document.createElement("li");
   newTodo.setAttribute("draggable", "true");
@@ -112,18 +136,12 @@ function layoutTodoItem(text, id, completed, addTo) {
   newTodo.setAttribute("data-id", id);
 
   newTodo.addEventListener("dragstart", () => {
-    newTodo.classList.add(".dragging");
-    console.log("1");
+    newTodo.classList.add("dragging");
   });
 
   newTodo.addEventListener("dragend", () => {
-    newTodo.classList.remove(".dragging");
+    newTodo.classList.remove("dragging");
   });
-
-  // const moveItemIcon = document.createElement("button");
-  // moveItemIcon.innerHTML = '<i class="fas fa-arrows-alt"></i>';
-  // moveItemIcon.classList.add("todo-list__move-buttons");
-  // newTodo.appendChild(moveItemIcon);
 
   //todo DIV
   const todoDiv = document.createElement("div");
@@ -135,16 +153,6 @@ function layoutTodoItem(text, id, completed, addTo) {
   todoItem.innerText = text;
   todoItem.classList.add("todo-list__item");
   todoDiv.appendChild(todoItem);
-
-  // todoItem.addEventListener("dragstart", () => {
-  //   todoItem.classList.add(".dragging");
-  //   console.log("bla");
-  // });
-
-  // todoItem.addEventListener("dragend", () => {
-  //   todoItem.classList.remove(".dragging");
-  //   console.log("boom");
-  // });
 
   //check mark button
   const completedButton = document.createElement("button");
@@ -161,9 +169,9 @@ function layoutTodoItem(text, id, completed, addTo) {
   trashButton.addEventListener("click", deleteTodo);
 
   // edit copy block
-  const editOrCopy = document.createElement("div");
-  editOrCopy.classList.add("todo-list__edit-clone-container");
-  todoDiv.appendChild(editOrCopy);
+  const edit = document.createElement("div");
+  edit.classList.add("todo-list__edit-container");
+  todoDiv.appendChild(edit);
 
   const moveItemIcon = document.createElement("i");
   moveItemIcon.classList.add("fas", "fa-arrows-alt");
@@ -173,25 +181,47 @@ function layoutTodoItem(text, id, completed, addTo) {
   const editButton = document.createElement("button");
   editButton.innerHTML = '<i class="fas fa-edit"></i>';
   editButton.classList.add("todo-list__edit-button");
-  editOrCopy.appendChild(editButton);
+  edit.appendChild(editButton);
   editButton.addEventListener("click", editTodo);
 
   //copy button
   const copyButton = document.createElement("button");
   copyButton.innerHTML = '<i class="fas fa-clone"></i>';
-  copyButton.classList.add("todo-list__clone-button");
-  editOrCopy.appendChild(copyButton);
+  copyButton.classList.add("todo-list__edit-button");
+  edit.appendChild(copyButton);
   copyButton.addEventListener("click", duplecateToto);
 
   //view button
   const viewButton = document.createElement("button");
   viewButton.innerHTML = '<i class="far fa-eye"></i>';
-  viewButton.classList.add("todo-list__clone-button");
-  editOrCopy.appendChild(viewButton);
+  viewButton.classList.add("todo-list__edit-button");
+  edit.appendChild(viewButton);
   viewButton.addEventListener("click", seeTodo);
 
   //prepend to list
   addTo.prepend(newTodo);
+
+  // dark theme
+
+  if (themeChangeBtn.classList.contains("themeBtn-black")) {
+    newTodo.classList.add("black");
+    completedButton.classList.add("button-black");
+    moveItemIcon.classList.add("button-black");
+    trashButton.classList.add("button-black");
+    edit.classList.add("overlay-black");
+    editButton.classList.add("icon-black");
+    copyButton.classList.add("icon-black");
+    viewButton.classList.add("icon-black");
+  } else {
+    newTodo.classList.remove("black");
+    completedButton.classList.remove("button-black");
+    moveItemIcon.classList.remove("button-black");
+    trashButton.classList.remove("button-black");
+    edit.classList.remove("overlay-black");
+    editButton.classList.remove("icon-black");
+    copyButton.classList.remove("icon-black");
+    viewButton.classList.remove("icon-black");
+  }
 }
 
 function addTodo(event) {
@@ -239,14 +269,13 @@ function checkTodo(e) {
   const todo = item.parentElement;
   todo.classList.toggle("completed");
   updateTodosLocalStorage(todo);
-  sortTodoList();
+  // sortTodoList();
 }
 
 function duplecateToto(e) {
   e.preventDefault();
 
   const item = e.target.closest(".todo-list__item-container");
-  // const itemParent = item.closest(".todo-list__item-container");
   todoTextContent = item.querySelector(".todo-list__item").innerText;
 
   const id = new Date().toISOString();
@@ -361,7 +390,6 @@ function updateTodosLocalStorage(todo) {
   const todoText = todo.children[0].innerText;
   const todoId = todo.getAttribute("data-id");
   const todoObj = { title: todoText, completed: false, id: todoId };
-  console.log(todoId, todoText, todo);
   const indexOfTodo = todos.findIndex((i) => i.id === todoObj.id);
 
   if (todo.classList.contains("completed")) {
@@ -375,7 +403,17 @@ function updateTodosLocalStorage(todo) {
   }
 }
 
+function saveThemeValueToLocalStorage() {
+  if (themeChangeBtn.classList.contains("themeBtn-black")) {
+    localStorage.setItem("dark-theme", true);
+  } else {
+    localStorage.setItem("dark-theme", false);
+  }
+}
+
 function getTodoesFromLocalStorage() {
+  getThemeValueFromLocalStorage();
+
   let todos;
 
   if (localStorage.getItem("todos") === null) {
@@ -386,6 +424,17 @@ function getTodoesFromLocalStorage() {
   todos.forEach(function (todo) {
     layoutTodoItem(todo.title, todo.id, todo.completed, todoList);
   });
+}
+
+function getThemeValueFromLocalStorage() {
+  const themeValue = localStorage.getItem("dark-theme");
+  if (themeValue === "true") {
+    themeChangeBtn.classList.add("themeBtn-black");
+  } else {
+    if (themeChangeBtn.classList.contains("themeBtn-black")) {
+      themeChangeBtn.classList.remove("themeBtn-black");
+    }
+  }
 }
 
 function removeTodosFromLocalStorage(todo) {
@@ -427,9 +476,7 @@ for (let selectSingleLabel of selectSingleLabels) {
 //close open popup
 function handleEscClose(event) {
   const ESC_KEYCODE = 27;
-  console.log("esc");
   if (event.keyCode === ESC_KEYCODE) {
-    console.log("esc1");
     const popupOpened = popupTodo.querySelector(".popup_opened");
 
     if (popupOpened) {
@@ -440,7 +487,6 @@ function handleEscClose(event) {
 
 function handleOverlayClose(event) {
   if (popupTodo === event.target && popupTodo.classList.contains("popup")) {
-    console.log("haha");
     closePopup();
   }
 }
@@ -461,8 +507,109 @@ function closePopup() {
 }
 
 function toggleClass(el, className) {
-  console.log(el, className);
   el.classList.contains(className)
     ? el.classList.remove(className)
     : el.classList.add(className);
+}
+
+function changeTheme() {
+  themeChangeBtn.classList.toggle("themeBtn-black");
+  toggleThemeChangeBtnText();
+  saveThemeValueToLocalStorage();
+
+  checkPageTheme();
+  checkListTheme();
+}
+
+function toggleThemeChangeBtnText() {
+  if (themeChangeBtn.classList.contains("themeBtn-black")) {
+    themeChangeBtn.textContent = "Color Theme";
+  } else {
+    themeChangeBtn.textContent = "Dark Theme";
+  }
+}
+
+function checkListTheme() {
+  if (themeChangeBtn.classList.contains("themeBtn-black")) {
+    todoList
+      .querySelectorAll(".todo-list__item-container")
+      .forEach((el) => el.classList.add("black"));
+    todoList
+      .querySelectorAll(".todo-list__completed-buttons")
+      .forEach((el) => el.classList.add("button-black"));
+    todoList
+      .querySelectorAll(".fa-arrows-alt")
+      .forEach((el) => el.classList.add("button-black"));
+    todoList
+      .querySelectorAll(".todo-list__trash-buttons")
+      .forEach((el) => el.classList.add("button-black"));
+    todoList
+      .querySelectorAll(".todo-list__edit-container")
+      .forEach((el) => el.classList.add("overlay-black"));
+    todoList
+      .querySelectorAll(".todo-list__edit-button")
+      .forEach((el) => el.classList.add("icon-black"));
+  } else {
+    todoList
+      .querySelectorAll(".todo-list__item-container")
+      .forEach((el) => el.classList.remove("black"));
+    todoList
+      .querySelectorAll(".todo-list__completed-buttons")
+      .forEach((el) => el.classList.remove("button-black"));
+    todoList
+      .querySelectorAll(".fa-arrows-alt")
+      .forEach((el) => el.classList.remove("button-black"));
+    todoList
+      .querySelectorAll(".todo-list__trash-buttons")
+      .forEach((el) => el.classList.remove("button-black"));
+    todoList
+      .querySelectorAll(".todo-list__edit-container")
+      .forEach((el) => el.classList.remove("overlay-black"));
+    todoList
+      .querySelectorAll(".todo-list__edit-button")
+      .forEach((el) => el.classList.remove("icon-black"));
+  }
+}
+
+function checkPageTheme() {
+  toggleThemeChangeBtnText();
+  if (themeChangeBtn.classList.contains("themeBtn-black")) {
+    document.querySelector(".body").classList.add("body-black");
+    document.querySelector(".todo-header").classList.add("h1-black");
+    document.querySelector(".todo__input").classList.add("input-black");
+    document.querySelector(".todo__button").classList.add("add-button-black");
+    document.querySelector(".filter-todo").classList.add("filter-black");
+    document.querySelector(".select").classList.add("select-black");
+    document
+      .querySelector(".select__content")
+      .classList.add("select-content-black");
+    document.querySelector(".footer").classList.add("footer-black");
+    document.querySelector(".popup__container").classList.add("popup-black");
+    document
+      .querySelector(".popup__close")
+      .classList.add("popup-closeBtn-black");
+    document.querySelector(".popup__todo").classList.add("popup-black");
+    document.querySelector(".popup__save").classList.add("popup-saveBtn-black");
+  } else {
+    document.querySelector(".body").classList.remove("body-black");
+    document.querySelector(".todo-header").classList.remove("h1-black");
+    document.querySelector(".todo__input").classList.remove("input-black");
+    document
+      .querySelector(".todo__button")
+      .classList.remove("add-button-black");
+    document.querySelector(".filter-todo").classList.remove("filter-black");
+    document.querySelector(".select").classList.remove("select-black");
+    document
+      .querySelector(".select__content")
+      .classList.remove("select-content-black");
+    document.querySelector(".footer").classList.remove("footer-black");
+    document.querySelector(".popup__container").classList.remove("popup-black");
+    document
+      .querySelector(".popup__close")
+      .classList.remove("popup-closeBtn-black");
+    document.querySelector(".popup__todo").classList.remove("popup-black");
+    document
+      .querySelector(".popup__save")
+      .classList.remove("popup-saveBtn-black");
+  }
 }

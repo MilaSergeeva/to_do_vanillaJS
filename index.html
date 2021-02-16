@@ -10,35 +10,46 @@
   <title>Todo List</title>
 </head>
 
-<body>
+<body class="body">
   <header class="todo-header">
     <h1>Your's Todo List</h1>
   </header>
-  <form class="todo">
-    <input type="text" placeholder="Add Todo" id="mainInput" class="todo__input">
-    <button class='todo__button' type='submit' disabled = true >
-      <i class='fas fa-plus-square'></i>
-    </button>
-    <div class="select" data-state="">
-      <div class="filter-todo" data-default="All">All</div>
-      <div class="select__content">
-        <input id="all" value='all' class="select__input" type="radio" name="singleSelect" checked />
-        <label for="all" class="select__label">All</label>
-        <input id="completed" value='completed' class="select__input" type="radio" name="singleSelect" />
-        <label for="completed" class="select__label">Completed</label>
-        <input id="uncompleted" value='uncompleted' class="select__input" type="radio" name="singleSelect" />
-        <label for="uncompleted" class="select__label">Uncompleted</label>
+  <main class="main">
+    <form class="todo">
+      <div class="todo__input-container">
+        <input type="text" placeholder="Add Todo" id="mainInput" class="todo__input">
+        <button class='todo__button' type='submit' disabled = true >
+          <i class='fas fa-plus-square'></i>
+        </button>
       </div>
-    </div>
-  </form>
 
-  <div class="todo-container">
-    <ul class="todo-list"></ul>
-  </div>
+      <div class="select">
+        <div class="filter-todo" data-default="All">All</div>
+        <div class="select__content">
+          <input id="all" value='all' class="select__input" type="radio" name="singleSelect" checked />
+          <label for="all" class="select__label">All</label>
+          <input id="completed" value='completed' class="select__input" type="radio" name="singleSelect" />
+          <label for="completed" class="select__label">Completed</label>
+          <input id="uncompleted" value='uncompleted' class="select__input" type="radio" name="singleSelect" />
+          <label for="uncompleted" class="select__label">Uncompleted</label>
+        </div>
+      </div>
+    </form>
+
+    <div class="todo-container">
+      <ul class="todo-list"></ul>
+    </div>
+</main>
+<footer class="footer">
+    <p class="copyright">&copy; 2021 Liudmila Sergeeva</p>
+    <button class="themeBtn"></button>
+</footer>
 
   <div class="popup">
     <div class="popup__container">
-      <button type="button" aria-label="close" class="popup__close"></button>
+      <button type="button" aria-label="close" class="popup__close">
+        <i class="fas fa-times"></i>
+      </button>
       <textarea type="text" rows="6" class="popup__todo" ></textarea>
       <button type="button" aria-label="save" class="popup__save">SAVE</button>
     </div>
