@@ -473,7 +473,7 @@ for (let selectSingleLabel of selectSingleLabels) {
   });
 }
 
-//close open popup
+//close popup
 function handleEscClose(event) {
   const ESC_KEYCODE = 27;
   console.log(event.keyCode);
