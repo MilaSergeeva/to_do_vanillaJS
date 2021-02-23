@@ -26,7 +26,7 @@ The following tecnologies were used to create this project:
 ### Preview
 
 <br/>
-<img src="./todoApp.png" width="75%"><br/>
+<img src="./todoApp.png" width="50%" height='50%'><br/>
 
 <br/>
-<img src="./todoAppColor.png" width="75%"><br/>
+<img src="./todoAppColor.png" width="50%" height='50%'><br/>
